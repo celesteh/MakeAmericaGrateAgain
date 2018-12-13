@@ -104,7 +104,7 @@ while(cap.isOpened() and bombs.isOpened() and ((not create_output_file) or out.i
     #If the last frame is reached, reset the capture and the frame_counter
     if frame_counter >= cap.get(cv2.CAP_PROP_FRAME_COUNT):
         frame_counter = 0 #Or whatever as long as it is the same as next line
-        cap.set(cv2.cv.CAP_PROP_POS_FRAMES, 0)
+        cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
         if create_output_file:
             keep_going=False
         #create_output_file = True #??
