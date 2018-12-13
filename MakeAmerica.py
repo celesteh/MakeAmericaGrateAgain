@@ -1,28 +1,49 @@
 import numpy as np
 import cv2
 import random
+import setproctitle
+import argparse
+import time
 
+parser = argparse.ArgumentParser(description='Run the video installation.')
+
+parser.add_argument('-r', '--record', nargs='?', default=False, help='Path to an output file')
+args = parser.parse_args()
+should_record = args.record
+
+setproctitle.setproctitle('makeamerica')
 
 global create_output_file
-create_output_file = True
+if (should_record):
+    create_output_file = True
+    outfile = should_record
+else:
+    create_output_file = False
 
 global keep_going
 keep_going = True
 
-
+window_name = "frame"
+#cv2.namedWindow(window_name, cv2.WND_PROP_FULLSCREEN)
+#cv2.setWindowProperty(window_name, cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+#cv2.namedWindow(window_name, cv2.WINDOW_FULLSCREEN)
+#cv2.setWindowProperty(window_name,  cv2.WND_PROP_FULLSCREEN, cv2.WINDOW_FULLSCREEN)
+cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
+cv2.setWindowProperty(window_name,  0,1)
 
 
 cap = cv2.VideoCapture('shower.mp4')
 bombs = cv2.VideoCapture('bomb/bomb_loop.mp4')
 
-width = bombs.get(cv2.cv.CV_CAP_PROP_FRAME_WIDTH)
-height = bombs.get(cv2.cv.CV_CAP_PROP_FRAME_HEIGHT)
+width = bombs.get(cv2.CAP_PROP_FRAME_WIDTH)
+height = bombs.get(cv2.CAP_PROP_FRAME_HEIGHT)
 width = int(width)
 height= int(height)
 
-fourcc = cv2.cv.CV_FOURCC(*'XVID')#*'XVID'
+fourcc = cv2.VideoWriter.fourcc(*'XVID')#*'XVID'
 if create_output_file:
-    out = cv2.VideoWriter('gifs/output.avi',fourcc, 12.0, (width,height))
+    out = cv2.VideoWriter(outfile,fourcc, 12.0, (width,height))
+    #out = cv2.VideoWriter('gifs/output.avi',fourcc, 12.0, (width,height))
 
 
 
@@ -40,8 +61,8 @@ print('Loading . . .')
 global output
 output=0
 
-bomb_counter = random.randint(0, (bombs.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT)-(size + 10)))
-bombs.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, bomb_counter)
+bomb_counter = random.randint(0, (bombs.get(cv2.CAP_PROP_FRAME_COUNT)-(size + 10)))
+bombs.set(cv2.CAP_PROP_POS_FRAMES, bomb_counter)
 
 for x in range(0, size):
     _,output=bombs.read()
@@ -61,7 +82,7 @@ last=0
 reccount = 0
 
 frame_counter = 0
-cap.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, 0)
+cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
 # Too explicit at the start if we start further in
 #frame_counter = max(0, random.randint(0, cap.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT)-(size * 4)))
 #cap.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, frame_counter)
@@ -74,24 +95,25 @@ lower_blue=np.array([0, 0, 50])#16, 34, 50
 upper_blue=np.array([70, 90, 255])#42, 72, 105#60,80,255
 
 
+
 while(cap.isOpened() and bombs.isOpened() and ((not create_output_file) or out.isOpened()) and keep_going):
 
     #manage looping
 
     frame_counter += 1
     #If the last frame is reached, reset the capture and the frame_counter
-    if frame_counter >= cap.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT):
+    if frame_counter >= cap.get(cv2.CAP_PROP_FRAME_COUNT):
         frame_counter = 0 #Or whatever as long as it is the same as next line
-        cap.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, 0)
+        cap.set(cv2.cv.CAP_PROP_POS_FRAMES, 0)
         if create_output_file:
             keep_going=False
         #create_output_file = True #??
 
     bomb_counter += 1
     #If the last frame is reached, reset the capture and the frame_counter
-    if bomb_counter >= bombs.get(cv2.cv.CV_CAP_PROP_FRAME_COUNT):
+    if bomb_counter >= bombs.get(cv2.CAP_PROP_FRAME_COUNT):
         bomb_counter = 0 #Or whatever as long as it is the same as next line
-        bombs.set(cv2.cv.CV_CAP_PROP_POS_FRAMES, 0)
+        bombs.set(cv2.CAP_PROP_POS_FRAMES, 0)
 
 
     # get porn frame for chromakeying, etc
@@ -168,13 +190,17 @@ while(cap.isOpened() and bombs.isOpened() and ((not create_output_file) or out.i
         last = last -1
 
     output=img
-    cv2.imshow('frame',output)
+    cv2.imshow(window_name,output)
     delay.append(output)
+
     if create_output_file:
         out.write(output)
         #reccount = reccount +1
         #if reccount > 2160:
         #    keep_going = False
+    else:
+        time.sleep(0.0001)
+
     delay=delay[1:size]
     five_prev=four_prev
     four_prev=three_prev
@@ -185,6 +211,8 @@ while(cap.isOpened() and bombs.isOpened() and ((not create_output_file) or out.i
     if cv2.waitKey(random.randint(75,85)) & 0xFF == ord('q'):
         #break
         keep_going = False
+
+
 
 if create_output_file:
     out.release()
