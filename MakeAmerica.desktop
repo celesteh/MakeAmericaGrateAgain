@@ -1,4 +1,4 @@
 [Desktop Entry]
 Name=MakeAmerica
-Exec=/user/bin/python /home/celesteh/Dropbox/debbie/MakeAmerica.py
+Exec=/home/celesteh/Dropbox/debbie/MakeAmerica.sh
 Type=application
