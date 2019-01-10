@@ -1,4 +1,9 @@
 [Desktop Entry]
+Type=Application
 Name=MakeAmerica
 Exec=/home/celesteh/Dropbox/debbie/MakeAmerica.sh
-Type=application
+StartupNotify=false
+Terminal=false
+Comment[en_GB]=Installation
+Comment=Installation
+
