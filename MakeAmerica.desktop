@@ -1,0 +1,4 @@
+[Desktop Entry]
+Name=MakeAmerica
+Exec=/user/bin/python /home/celesteh/Dropbox/debbie/MakeAmerica.py
+Type=application
